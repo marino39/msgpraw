@@ -1,4 +1,4 @@
-module msgpraw
+module github.com/marino39/msgpraw
 
 go 1.20
 
