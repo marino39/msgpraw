@@ -51,15 +51,18 @@ func (r *MsgpReader) Read() (Type, int, []byte, error) {
 	} else if msgpType == Bin8 || msgpType == Ext8 || msgpType == Str8 {
 		length := int(r.Buff[r.Idx])
 		r.Idx++
-		return msgpType, 0, r.Buff[r.Idx : r.Idx+length], nil
+		r.Idx += length
+		return msgpType, 0, r.Buff[r.Idx-length : r.Idx], nil
 	} else if msgpType == Bin16 || msgpType == Ext16 || msgpType == Str16 {
 		length := int(r.Buff[r.Idx])<<8 | int(r.Buff[r.Idx+1])
 		r.Idx += 2
-		return msgpType, 0, r.Buff[r.Idx : r.Idx+length], nil
+		r.Idx += length
+		return msgpType, 0, r.Buff[r.Idx-length : r.Idx], nil
 	} else if msgpType == Bin32 || msgpType == Ext32 || msgpType == Str32 {
 		length := int(r.Buff[r.Idx])<<24 | int(r.Buff[r.Idx+1])<<16 | int(r.Buff[r.Idx+2])<<8 | int(r.Buff[r.Idx+3])
 		r.Idx += 4
-		return msgpType, 0, r.Buff[r.Idx : r.Idx+length], nil
+		r.Idx += length
+		return msgpType, 0, r.Buff[r.Idx-length : r.Idx], nil
 	} else if msgpType == FixExt1 {
 		r.Idx++
 		return msgpType, 0, r.Buff[r.Idx : r.Idx+1], nil
