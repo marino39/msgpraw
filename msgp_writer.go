@@ -27,8 +27,8 @@ type IMsgpWriter interface {
 }
 
 type MsgpWriter struct {
-	Buffer []byte
-	idx    int
+	Buff []byte
+	idx  int
 }
 
 func (w *MsgpWriter) WriteInt(i int) error {
@@ -36,32 +36,32 @@ func (w *MsgpWriter) WriteInt(i int) error {
 }
 
 func (w *MsgpWriter) WriteInt8(i int8) error {
-	w.Buffer = append(w.Buffer, byte(Int8))
-	w.Buffer = append(w.Buffer, byte(i))
+	w.Buff = append(w.Buff, byte(Int8))
+	w.Buff = append(w.Buff, byte(i))
 	return nil
 }
 
 func (w *MsgpWriter) WriteInt16(i int16) error {
-	w.Buffer = append(w.Buffer, byte(Int16))
+	w.Buff = append(w.Buff, byte(Int16))
 	b := make([]byte, 2)
 	binary.BigEndian.PutUint16(b, uint16(i))
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteInt32(i int32) error {
-	w.Buffer = append(w.Buffer, byte(Int32))
+	w.Buff = append(w.Buff, byte(Int32))
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, uint32(i))
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteInt64(i int64) error {
-	w.Buffer = append(w.Buffer, byte(Int64))
+	w.Buff = append(w.Buff, byte(Int64))
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, uint64(i))
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
@@ -70,91 +70,91 @@ func (w *MsgpWriter) WriteUint(u uint) error {
 }
 
 func (w *MsgpWriter) WriteUint8(u uint8) error {
-	w.Buffer = append(w.Buffer, byte(Uint8))
-	w.Buffer = append(w.Buffer, u)
+	w.Buff = append(w.Buff, byte(Uint8))
+	w.Buff = append(w.Buff, u)
 	return nil
 }
 
 func (w *MsgpWriter) WriteUint16(u uint16) error {
-	w.Buffer = append(w.Buffer, byte(Uint16))
+	w.Buff = append(w.Buff, byte(Uint16))
 	b := make([]byte, 2)
 	binary.BigEndian.PutUint16(b, u)
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteUint32(u uint32) error {
-	w.Buffer = append(w.Buffer, byte(Uint32))
+	w.Buff = append(w.Buff, byte(Uint32))
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, u)
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteUint64(u uint64) error {
-	w.Buffer = append(w.Buffer, byte(Uint64))
+	w.Buff = append(w.Buff, byte(Uint64))
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, u)
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteFloat32(f float32) error {
-	w.Buffer = append(w.Buffer, byte(Float32))
+	w.Buff = append(w.Buff, byte(Float32))
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, math.Float32bits(f))
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteFloat64(f float64) error {
-	w.Buffer = append(w.Buffer, byte(Float64))
+	w.Buff = append(w.Buff, byte(Float64))
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, math.Float64bits(f))
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteString(s string) error {
-	w.Buffer = append(w.Buffer, byte(Str8))
-	w.Buffer = append(w.Buffer, byte(len(s)))
-	w.Buffer = append(w.Buffer, s...)
+	w.Buff = append(w.Buff, byte(Str8))
+	w.Buff = append(w.Buff, byte(len(s)))
+	w.Buff = append(w.Buff, s...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteBytes(b []byte) error {
-	w.Buffer = append(w.Buffer, byte(Bin8))
-	w.Buffer = append(w.Buffer, byte(len(b)))
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, byte(Bin8))
+	w.Buff = append(w.Buff, byte(len(b)))
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteNil() error {
-	w.Buffer = append(w.Buffer, byte(Nil))
+	w.Buff = append(w.Buff, byte(Nil))
 	return nil
 }
 
 func (w *MsgpWriter) WriteBool(b bool) error {
 	if b {
-		w.Buffer = append(w.Buffer, byte(True))
+		w.Buff = append(w.Buff, byte(True))
 	} else {
-		w.Buffer = append(w.Buffer, byte(False))
+		w.Buff = append(w.Buff, byte(False))
 	}
 	return nil
 }
 
 func (w *MsgpWriter) WriteArray(length int) error {
-	w.Buffer = append(w.Buffer, byte(Array16))
+	w.Buff = append(w.Buff, byte(Array16))
 	b := make([]byte, 2)
 	binary.BigEndian.PutUint16(b, uint16(length))
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }
 
 func (w *MsgpWriter) WriteMap(length int) error {
-	w.Buffer = append(w.Buffer, byte(Map16))
+	w.Buff = append(w.Buff, byte(Map16))
 	b := make([]byte, 2)
 	binary.BigEndian.PutUint16(b, uint16(length))
-	w.Buffer = append(w.Buffer, b...)
+	w.Buff = append(w.Buff, b...)
 	return nil
 }

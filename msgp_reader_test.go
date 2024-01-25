@@ -104,7 +104,7 @@ func TestReader_Read_Int(t *testing.T) {
 
 	for _, tc := range testCase {
 		t.Run(tc.name, func(t *testing.T) {
-			reader := &MsgpReader{Buffer: tc.msg}
+			reader := &MsgpReader{Buff: tc.msg}
 
 			msgType, _, value, err := reader.Read()
 			require.NoError(t, err)
@@ -360,7 +360,7 @@ func TestReader_Read_FixArray(t *testing.T) {
 
 	for _, tc := range testCase {
 		t.Run(tc.name, func(t *testing.T) {
-			reader := &MsgpReader{Buffer: tc.msg}
+			reader := &MsgpReader{Buff: tc.msg}
 
 			msgType, numberOfElements, _, err := reader.Read()
 			require.NoError(t, err)
@@ -737,7 +737,7 @@ func TestReader_Read_FixMap(t *testing.T) {
 
 	for _, tc := range testCase {
 		t.Run(tc.name, func(t *testing.T) {
-			reader := &MsgpReader{Buffer: tc.msg}
+			reader := &MsgpReader{Buff: tc.msg}
 
 			msgType, numberOfElements, _, err := reader.Read()
 			require.NoError(t, err)
@@ -765,5 +765,55 @@ func TestReader_Read_FixMap(t *testing.T) {
 
 			assert.Equal(t, tc.length, numberOfElements)
 		})
+	}
+}
+
+func BenchmarkMsgpReader_Read(b *testing.B) {
+	msg := []byte{
+		0x8f,                 // fixmap(15)
+		byte(PosFixInt + 1),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 2),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 3),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 4),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 5),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 6),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 7),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 8),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 9),  // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 10), // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 11), // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 12), // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 13), // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 14), // nil
+		byte(Nil),            // nil
+		byte(PosFixInt + 15), // nil
+		byte(Nil),            // nil
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		reader := &MsgpReader{Buff: msg}
+
+		eof := false
+		for !eof {
+			_, _, _, err := reader.Read()
+			if errors.Is(err, EOF) {
+				eof = true
+			}
+		}
 	}
 }

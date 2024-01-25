@@ -10,7 +10,7 @@ import (
 )
 
 func TestMsgpWriter_WriteInt(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteInt(123)
 	require.NoError(t, err)
@@ -19,19 +19,19 @@ func TestMsgpWriter_WriteInt(t *testing.T) {
 	expected[0] = byte(Int64)
 	binary.BigEndian.PutUint64(expected[1:], uint64(123))
 
-	require.Equal(t, len(expected), len(w.Buffer))
-	for i, b := range w.Buffer {
+	require.Equal(t, len(expected), len(w.Buff))
+	for i, b := range w.Buff {
 		assert.Equal(t, expected[i], b)
 	}
 }
 
 func TestWriteReadInt(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteInt(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -42,12 +42,12 @@ func TestWriteReadInt(t *testing.T) {
 }
 
 func TestWriteReadInt8(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteInt8(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -58,12 +58,12 @@ func TestWriteReadInt8(t *testing.T) {
 }
 
 func TestWriteReadInt16(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteInt16(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -74,12 +74,12 @@ func TestWriteReadInt16(t *testing.T) {
 }
 
 func TestWriteReadInt32(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteInt32(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -90,12 +90,12 @@ func TestWriteReadInt32(t *testing.T) {
 }
 
 func TestWriteReadInt64(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteInt64(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -106,12 +106,12 @@ func TestWriteReadInt64(t *testing.T) {
 }
 
 func TestWriteReadUint(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteUint(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -122,12 +122,12 @@ func TestWriteReadUint(t *testing.T) {
 }
 
 func TestWriteReadUint8(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteUint8(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -138,12 +138,12 @@ func TestWriteReadUint8(t *testing.T) {
 }
 
 func TestWriteReadUint16(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteUint16(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -154,12 +154,12 @@ func TestWriteReadUint16(t *testing.T) {
 }
 
 func TestWriteReadUint32(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteUint32(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 
@@ -170,12 +170,12 @@ func TestWriteReadUint32(t *testing.T) {
 }
 
 func TestWriteReadUint64(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteUint64(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 	assert.Equal(t, Uint64, fType)
@@ -185,12 +185,12 @@ func TestWriteReadUint64(t *testing.T) {
 }
 
 func TestWriteReadFloat32(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteFloat32(123.456)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 	assert.Equal(t, Float32, fType)
@@ -200,12 +200,12 @@ func TestWriteReadFloat32(t *testing.T) {
 }
 
 func TestWriteReadFloat64(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteFloat64(123.456)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 	assert.Equal(t, Float64, fType)
@@ -215,12 +215,12 @@ func TestWriteReadFloat64(t *testing.T) {
 }
 
 func TestWriteReadString(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteString("test")
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 	assert.Equal(t, Str8, fType)
@@ -230,12 +230,12 @@ func TestWriteReadString(t *testing.T) {
 }
 
 func TestWriteReadBytes(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteBytes([]byte("test"))
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 	assert.Equal(t, Bin8, fType)
@@ -245,12 +245,12 @@ func TestWriteReadBytes(t *testing.T) {
 }
 
 func TestWriteReadNil(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteNil()
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 	assert.Equal(t, Nil, fType)
@@ -259,7 +259,7 @@ func TestWriteReadNil(t *testing.T) {
 }
 
 func TestWriteReadBool(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteBool(true)
 	require.NoError(t, err)
@@ -267,7 +267,7 @@ func TestWriteReadBool(t *testing.T) {
 	err = w.WriteBool(false)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 	assert.Equal(t, True, fType)
@@ -282,7 +282,7 @@ func TestWriteReadBool(t *testing.T) {
 }
 
 func TestWriteReadArray(t *testing.T) {
-	w := &MsgpWriter{Buffer: make([]byte, 0)}
+	w := &MsgpWriter{Buff: make([]byte, 0)}
 
 	err := w.WriteArray(2)
 	require.NoError(t, err)
@@ -293,7 +293,7 @@ func TestWriteReadArray(t *testing.T) {
 	err = w.WriteInt(456)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buffer: w.Buffer}
+	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
 	assert.Equal(t, Array16, fType)
@@ -312,4 +312,20 @@ func TestWriteReadArray(t *testing.T) {
 	assert.Equal(t, 0, num)
 	assert.Equal(t, 8, len(data))
 	assert.Equal(t, uint64(456), binary.BigEndian.Uint64(data))
+}
+
+func BenchmarkMsgpWriter_WriteArray(b *testing.B) {
+	buff := make([]byte, 255)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		w := &MsgpWriter{Buff: buff[:0]}
+
+		_ = w.WriteMap(15)
+		for j := 0; j < 15; j++ {
+			_ = w.WriteInt8(int8(j))
+			_ = w.WriteNil()
+		}
+	}
 }
