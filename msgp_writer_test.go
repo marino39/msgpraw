@@ -25,20 +25,34 @@ func TestMsgpWriter_WriteInt(t *testing.T) {
 	}
 }
 
-func TestWriteReadInt(t *testing.T) {
+func TestMsgpWriter_WritePosFixInt(t *testing.T) {
 	w := &MsgpWriter{Buff: make([]byte, 0)}
 
-	err := w.WriteInt(123)
+	err := w.WritePosFixInt(123)
 	require.NoError(t, err)
 
-	r := &MsgpReader{Buff: w.Buff}
-	fType, num, data, err := r.Read()
+	expected := make([]byte, 1)
+	expected[0] = 123
+
+	require.Equal(t, len(expected), len(w.Buff))
+	for i, b := range w.Buff {
+		assert.Equal(t, expected[i], b)
+	}
+}
+
+func TestMsgpWriter_WriteNegFixInt(t *testing.T) {
+	w := &MsgpWriter{Buff: make([]byte, 0)}
+
+	err := w.WriteNegFixInt(-123)
 	require.NoError(t, err)
 
-	assert.Equal(t, Int64, fType)
-	assert.Equal(t, 0, num)
-	assert.Equal(t, 8, len(data))
-	assert.Equal(t, uint64(123), binary.BigEndian.Uint64(data))
+	expected := make([]byte, 1)
+	expected[0] = 133
+
+	require.Equal(t, len(expected), len(w.Buff))
+	for i, b := range w.Buff {
+		assert.Equal(t, expected[i], b)
+	}
 }
 
 func TestWriteReadInt8(t *testing.T) {

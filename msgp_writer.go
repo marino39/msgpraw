@@ -2,10 +2,12 @@ package msgpraw
 
 import (
 	"encoding/binary"
+	"fmt"
 	"math"
 )
 
 type IMsgpWriter interface {
+	WritePosFixInt(uint8) error
 	WriteInt(int) error
 	WriteInt8(int8) error
 	WriteInt16(int16) error
@@ -33,6 +35,14 @@ type MsgpWriter struct {
 
 func (w *MsgpWriter) WriteInt(i int) error {
 	return w.WriteInt64(int64(i))
+}
+
+func (w *MsgpWriter) WritePosFixInt(i uint8) error {
+	if i > 0x7f {
+		return fmt.Errorf("value is not a positive fixint")
+	}
+	w.Buff = append(w.Buff, i)
+	return nil
 }
 
 func (w *MsgpWriter) WriteInt8(i int8) error {
