@@ -18,6 +18,7 @@ type MsgpReader struct {
 	Idx  int
 }
 
+// Read reads the next msgp value
 func (r *MsgpReader) Read() (Type, int, []byte, error) {
 	if r.Idx >= len(r.Buff) {
 		return Type(0), 0, nil, EOF
@@ -103,4 +104,10 @@ func (r *MsgpReader) Read() (Type, int, []byte, error) {
 	} else {
 		return msgpType, 0, nil, fmt.Errorf("unknown msgp type: %x", msgpType)
 	}
+}
+
+// Skip skips the next msgp value
+func (r *MsgpReader) Skip() error {
+	_, _, _, err := r.Read()
+	return err
 }
