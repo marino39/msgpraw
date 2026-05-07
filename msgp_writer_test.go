@@ -41,18 +41,34 @@ func TestMsgpWriter_WritePosFixInt(t *testing.T) {
 }
 
 func TestMsgpWriter_WriteNegFixInt(t *testing.T) {
-	w := &MsgpWriter{Buff: make([]byte, 0)}
-
-	err := w.WriteNegFixInt(-123)
-	require.NoError(t, err)
-
-	expected := make([]byte, 1)
-	expected[0] = 133
-
-	require.Equal(t, len(expected), len(w.Buff))
-	for i, b := range w.Buff {
-		assert.Equal(t, expected[i], b)
-	}
+	t.Run("valid_min", func(t *testing.T) {
+		w := &MsgpWriter{Buff: make([]byte, 0)}
+		require.NoError(t, w.WriteNegFixInt(-32))
+		require.Equal(t, []byte{0xe0}, w.Buff)
+	})
+	t.Run("valid_max", func(t *testing.T) {
+		w := &MsgpWriter{Buff: make([]byte, 0)}
+		require.NoError(t, w.WriteNegFixInt(-1))
+		require.Equal(t, []byte{0xff}, w.Buff)
+	})
+	t.Run("valid_mid", func(t *testing.T) {
+		w := &MsgpWriter{Buff: make([]byte, 0)}
+		require.NoError(t, w.WriteNegFixInt(-5))
+		require.Equal(t, []byte{0xfb}, w.Buff)
+	})
+	t.Run("out_of_range_below", func(t *testing.T) {
+		w := &MsgpWriter{Buff: make([]byte, 0)}
+		require.ErrorIs(t, w.WriteNegFixInt(-33), ErrNegFixIntRange)
+		require.Empty(t, w.Buff)
+	})
+	t.Run("out_of_range_zero", func(t *testing.T) {
+		w := &MsgpWriter{Buff: make([]byte, 0)}
+		require.ErrorIs(t, w.WriteNegFixInt(0), ErrNegFixIntRange)
+	})
+	t.Run("out_of_range_positive", func(t *testing.T) {
+		w := &MsgpWriter{Buff: make([]byte, 0)}
+		require.ErrorIs(t, w.WriteNegFixInt(1), ErrNegFixIntRange)
+	})
 }
 
 func TestWriteReadInt8(t *testing.T) {
@@ -234,10 +250,11 @@ func TestWriteReadString(t *testing.T) {
 	err := w.WriteString("test")
 	require.NoError(t, err)
 
+	// "test" fits in FixStr (<=31 bytes), so auto-sized writer picks FixStr.
 	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
-	assert.Equal(t, Str8, fType)
+	assert.Equal(t, Type(byte(FixStr)|4), fType)
 	assert.Equal(t, 0, num)
 	assert.Equal(t, 4, len(data))
 	assert.Equal(t, "test", string(data))
@@ -310,7 +327,8 @@ func TestWriteReadArray(t *testing.T) {
 	r := &MsgpReader{Buff: w.Buff}
 	fType, num, data, err := r.Read()
 	require.NoError(t, err)
-	assert.Equal(t, Array16, fType)
+	// Auto-sized: length 2 fits in FixArray.
+	assert.Equal(t, Type(byte(FixArray)|2), fType)
 	assert.Equal(t, 2, num)
 
 	fType, num, data, err = r.Read()
