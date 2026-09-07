@@ -1,5 +1,6 @@
 # msgpraw
 
+[![CI](https://github.com/marino39/msgpraw/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/marino39/msgpraw/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/marino39/msgpraw.svg)](https://pkg.go.dev/github.com/marino39/msgpraw)
 [![Go Report Card](https://goreportcard.com/badge/github.com/marino39/msgpraw)](https://goreportcard.com/report/github.com/marino39/msgpraw)
 
@@ -148,7 +149,11 @@ go test ./...                                # unit tests
 go test -race -cover ./...                   # race detector + coverage
 go test -run TestReader_NoAllocs ./...       # zero-alloc assertion
 go test -bench . -benchmem -run=^$ ./...     # benchmarks
+go test -run=^$ -fuzz=FuzzReader -fuzztime=30s .     # fuzz the reader (malformed input)
+go test -run=^$ -fuzz=FuzzRoundTrip -fuzztime=30s .  # fuzz writer -> reader roundtrip
 ```
+
+The fuzz targets assert the reader never panics, returns only `io.EOF` / `ErrTruncated` / `ErrUnknownType`, and never hands back a payload outside its input buffer; crashers land in `testdata/fuzz/`.
 
 ## Non-goals
 
