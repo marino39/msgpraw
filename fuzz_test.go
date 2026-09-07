@@ -23,6 +23,58 @@ func isCollectionTag(typ Type) bool {
 		(typ >= FixMap && typ <= FixMapMax) || typ == Map16 || typ == Map32
 }
 
+// isFixedScalarTag reports whether typ is a fixed-width numeric scalar whose
+// payload is exactly the big-endian value bytes with no length prefix.
+func isFixedScalarTag(typ Type) bool {
+	switch typ {
+	case Int8, Uint8, Int16, Uint16, Int32, Uint32, Float32, Int64, Uint64, Float64:
+		return true
+	}
+	return false
+}
+
+// headerLen returns the number of bytes a str/bin/ext value's Read() call
+// consumes before the returned payload, i.e. the tag byte plus any length
+// prefix but excluding the payload itself. For FixExt*, the ext-type byte is
+// part of the returned payload (see IMsgpReader), so only the tag counts;
+// for Ext8/16/32 the ext-type byte is likewise folded into the payload.
+func headerLen(typ Type) int {
+	switch {
+	case typ >= FixStr && typ <= FixStrMax:
+		return 1
+	case typ == Str8, typ == Bin8:
+		return 2
+	case typ == Str16, typ == Bin16:
+		return 3
+	case typ == Str32, typ == Bin32:
+		return 5
+	case typ == Ext8:
+		return 2
+	case typ == Ext16:
+		return 3
+	case typ == Ext32:
+		return 5
+	case typ == FixExt1, typ == FixExt2, typ == FixExt4, typ == FixExt8, typ == FixExt16:
+		return 1
+	default:
+		return 0
+	}
+}
+
+// collectionHeaderLen returns the number of header bytes an array/map
+// value's Read() call consumes; the count is encoded in the tag itself for
+// Fix* forms, or in a trailing length field for the 16/32-bit forms.
+func collectionHeaderLen(typ Type) int {
+	switch {
+	case typ == Array16, typ == Map16:
+		return 3
+	case typ == Array32, typ == Map32:
+		return 5
+	default:
+		return 1
+	}
+}
+
 // checkReadInvariants drains data through MsgpReader.Read and asserts that
 // the reader never panics, never returns an error outside the documented
 // set, and never hands back a payload slice that reaches outside data. It
@@ -70,18 +122,28 @@ func checkReadInvariants(t *testing.T, data []byte) {
 		require.LessOrEqual(t, off, len(buf))
 		require.LessOrEqual(t, off+len(p), len(buf))
 		require.LessOrEqual(t, cap(p), len(buf))
+		if len(p) > 0 {
+			require.True(t, &buf[off] == &p[0], "payload must alias buf, not a detached copy")
+		}
 
 		switch {
 		case isTagEncodedTag(typ):
 			require.Nil(t, p)
 			require.Equal(t, 0, count)
+			require.Equal(t, 1, r.Idx-prev)
 		case isCollectionTag(typ):
 			require.GreaterOrEqual(t, count, 0)
 			require.Equal(t, r.Idx, off)
 			require.Equal(t, len(buf), off+len(p))
+			require.Equal(t, collectionHeaderLen(typ), r.Idx-prev)
+		case isFixedScalarTag(typ):
+			require.Equal(t, 0, count)
+			require.Equal(t, r.Idx, off+len(p))
+			require.Equal(t, 1+len(p), r.Idx-prev)
 		default:
 			require.Equal(t, 0, count)
 			require.Equal(t, r.Idx, off+len(p))
+			require.Equal(t, headerLen(typ)+len(p), r.Idx-prev)
 		}
 	}
 
@@ -210,8 +272,16 @@ func expectedMapType(n int) Type {
 
 func FuzzRoundTrip(f *testing.F) {
 	f.Add(uint8(0), int64(0), float64(0), "", []byte(nil), int8(0), uint32(0))
-	f.Add(uint8(4), int64(1)<<40, -0.0, "hello world", []byte{1, 2, 3}, int8(-5), uint32(1000))
+	f.Add(uint8(1), int64(42), float64(0), "", []byte(nil), int8(0), uint32(0))
+	f.Add(uint8(3), int64(0), float64(3.14), "", []byte(nil), int8(0), uint32(0))
+	f.Add(uint8(4), int64(1)<<40, math.Copysign(0, -1), "hello world", []byte{1, 2, 3}, int8(-5), uint32(1000))
+	f.Add(uint8(5), int64(0), float64(0), "", []byte(nil), int8(0), uint32(7))
+	f.Add(uint8(6), int64(0), float64(0), "", []byte(nil), int8(0), uint32(0))
+	f.Add(uint8(7), int64(0), float64(0), "seed str", []byte(nil), int8(0), uint32(0))
+	f.Add(uint8(8), int64(0), float64(0), "", []byte{9, 9, 9}, int8(0), uint32(0))
+	f.Add(uint8(9), int64(0), float64(0), "", []byte{1, 2}, int8(7), uint32(0))
 	f.Add(uint8(10), int64(-123456789), math.Inf(1), string(make([]byte, 40)), make([]byte, 300), int8(127), uint32(70000))
+	f.Add(uint8(21), int64(0), float64(0), "", []byte(nil), int8(0), uint32(3))
 	f.Add(uint8(255), int64(math.MaxInt64), math.NaN(), "", []byte{}, int8(-128), uint32(4000000000))
 
 	f.Fuzz(func(t *testing.T, sel uint8, i64 int64, f64 float64, s string, b []byte, extType int8, n uint32) {
